@@ -1,56 +1,40 @@
-import { STOREKEY, StoreOptions } from "./types";
+import { STOREKEY, StoreOptions, IModule } from "./types";
 import { reactive } from "vue";
 
 import { forEachValue } from "./utils";
+import { ModuleCollection } from "./module/moduleClooection";
+
+// 深度优先遍历 添加子模块
+//@ts-ignore
+function installModule(store, rootState, path, module) {
+  const isRoot = !path.length;
+  if (!isRoot) {
+    const parentState = path.slice(0, -1).reduce((state, key) => {
+      return state[key];
+    }, store);
+    parentState[path[path.length - 1]] = module.state;
+  }
+  module.foreachChild((child, key) => {
+    installModule(store, rootState, path.concat(key), child);
+  });
+}
 
 class Store {
   public _state: any;
   public getters: any;
   public _mutations: any;
   public _actions: any;
+  public _modules;
   constructor(options: StoreOptions) {
-    const store = this;
-    // this.state = options.state;
-    // 为了兼容replaceState 方法 外部加一层data 以便于重置state
-    store._state = reactive({ data: options.state() });
+    // {state,mutations,actions,modules}
+    // 注册模块
+    this._modules = new ModuleCollection(options);
+    console.log(this);
 
-    const _getters = options.getters;
-    this.getters = {};
-    // 遍历getters 对象 挂载到store
-    forEachValue(_getters, function (fn, key) {
-      Object.defineProperty(store.getters, key, {
-        get: () => {
-          return fn(store.state);
-        },
-      });
-    });
-
-    // mutations
-    store._mutations = Object.create(null);
-    const _mutations = options.mutations;
-    forEachValue(_mutations, function (mutation, key) {
-      store._mutations[key] = (payload: any) => {
-        mutation.call(store, store.state, payload);
-      };
-    });
-    // actions
-    store._actions = Object.create(null);
-    const _actions = options.actions;
-    forEachValue(_actions, function (action, key) {
-      store._actions[key] = (payload: any) => {
-        action.call(store, store, payload);
-      };
-    });
-  }
-
-  commit = (type: string, payload: any) => {
-    this._mutations[type](payload);
-  };
-  dispatch = (type: string, payload: any) => {
-    this._actions[type](payload);
-  };
-  get state() {
-    return this._state.data;
+    // 添加属性
+    const state = this._modules.root?.state;
+    installModule(this, state, [], this._modules.root);
+    console.log(this._state);
   }
   install(app, injectKey) {
     app.provide(injectKey || STOREKEY, this);
@@ -60,3 +44,25 @@ class Store {
 }
 
 export { Store };
+
+// 实现模块化 创建树状结构
+/**
+ 
+root = {
+  _raw:rootModule,
+  state:rootModule.state,
+  _children:{
+    a-space:{
+      _raw:AModule,
+      state:AModule.state
+      _children:{}
+    },
+    b-space:{
+      _raw:BModule,
+      state:BModule.state
+      _children:{}
+    }
+  }
+}
+
+ */
