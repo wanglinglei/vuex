@@ -6,6 +6,8 @@ import { forEachValue } from "./utils";
 class Store {
   public _state: any;
   public getters: any;
+  public _mutations: any;
+  public _actions: any;
   constructor(options: StoreOptions) {
     const store = this;
     // this.state = options.state;
@@ -22,7 +24,31 @@ class Store {
         },
       });
     });
+
+    // mutations
+    store._mutations = Object.create(null);
+    const _mutations = options.mutations;
+    forEachValue(_mutations, function (mutation, key) {
+      store._mutations[key] = (payload: any) => {
+        mutation.call(store, store.state, payload);
+      };
+    });
+    // actions
+    store._actions = Object.create(null);
+    const _actions = options.actions;
+    forEachValue(_actions, function (action, key) {
+      store._actions[key] = (payload: any) => {
+        action.call(store, store, payload);
+      };
+    });
   }
+
+  commit = (type: string, payload: any) => {
+    this._mutations[type](payload);
+  };
+  dispatch = (type: string, payload: any) => {
+    this._actions[type](payload);
+  };
   get state() {
     return this._state.data;
   }
