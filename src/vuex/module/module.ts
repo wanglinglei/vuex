@@ -21,4 +21,19 @@ export class Module {
   foreachChild(fn: () => void) {
     forEachValue(this._children, fn);
   }
+  forEachGetter(fn: () => void) {
+    if (this._raw.getters) {
+      forEachValue(this._raw.getters, fn);
+    }
+  }
+  forEachMutations(fn: () => void) {
+    if (this._raw.mutations) {
+      forEachValue(this._raw.mutations, fn);
+    }
+  }
+  forEachActions(fn: () => void) {
+    if (this._raw.actions) {
+      forEachValue(this._raw.actions, fn);
+    }
+  }
 }

@@ -24,3 +24,11 @@ export interface IModule {
   getChild: (key: string) => IModule;
   foreachChild: (fn: (module: IModule, key: string) => void) => void;
 }
+
+type Commit = (payload: any) => void;
+
+export type I_Mutation = Commit[];
+
+type Dispatch = (payload: any) => void;
+
+export type I_Action = Dispatch[];
