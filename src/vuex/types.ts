@@ -7,6 +7,7 @@ export type Mutations = Record<string, () => any>;
 export type Actions = Record<string, () => any>;
 
 export interface StoreOptions {
+  nameSpace: undefined | boolean;
   state: StateRaw;
   getters: Getters;
   mutations: Mutations;
@@ -17,6 +18,7 @@ export interface StoreOptions {
 export type ModuleChildren = Record<string, IModule>;
 
 export interface IModule {
+  nameSpace: undefined | boolean;
   _raw: StoreOptions;
   state: any;
   _children: ModuleChildren;

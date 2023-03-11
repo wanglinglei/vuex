@@ -5,12 +5,14 @@ export class Module {
   public _raw;
   public state;
   public _children: ModuleChildren;
+  public nameSpace: boolean;
   constructor(rawModule: StoreOptions) {
     console.log("rawModule", rawModule);
 
     this._raw = rawModule;
     this.state = rawModule.state();
     this._children = {};
+    this.nameSpace = rawModule.nameSpace ?? false;
   }
   addChild(key: string, module: IModule) {
     this._children[key] = module;

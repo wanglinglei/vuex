@@ -2,7 +2,7 @@ import { StoreOptions, IModule } from "../types";
 import { forEachValue } from "../utils";
 import { Module } from "./module";
 export class ModuleCollection {
-  public root: IModule | null;
+  public root: IModule;
   constructor(module: StoreOptions) {
     this.root = null;
     this.registerModule(module, []);
@@ -24,5 +24,15 @@ export class ModuleCollection {
         this.registerModule(rawChildrenModule, path.concat(key));
       });
     }
+  }
+
+  getNameSpace(path: string[]) {
+    let module = this.root;
+    // @note [a,b] => 'a/c'
+    return path.reduce((nameSpaceString, key) => {
+      // 获取子模块
+      module = module?.getChild(key);
+      return nameSpaceString + (module.nameSpace ? key + "/" : "");
+    }, "");
   }
 }

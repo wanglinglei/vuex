@@ -18,8 +18,12 @@ function getCurrentState(state: State, path: string[]) {
 
 // 深度优先遍历 添加子模块
 //@ts-ignore
-function installModule(store, rootState, path, module) {
+function installModule(store: Store, rootState, path: string[], module) {
   const isRoot = !path.length;
+
+  // @note 处理nameSpace
+  const nameSpace = store._modules.getNameSpace(path);
+
   if (!isRoot) {
     const parentState = path
       .slice(0, -1)

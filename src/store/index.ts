@@ -25,6 +25,7 @@ const store = createStore({
 
   modules: {
     AAAA: {
+      nameSpace: true,
       state() {
         return {
           aaaa: "aaaa",
@@ -32,6 +33,8 @@ const store = createStore({
       },
       modules: {
         AAAAA1111: {
+          nameSpace: true,
+
           state() {
             return {
               aaaa1111: "aaaa1111",
